@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Donation Page</title>
+
+    <link rel="stylesheet" href="https://bootswatch.com/5/sketchy/bootstrap.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<style>
+    {
+        background-color: azure
+    }
+</style>
+<br> <br>
+<div class="text-center">
+    <div class="container bg-white" style="width: 777px;">
+        {% for donate in my_donation %}
+        <br>
+        <h1>{{donate.title}}</h1>
+        <br>
+        <h4>{{donate.description}} for {{donate.amount}} $ </h4>
+        <br>
+        <i class="fa fa-heart-o fa-4x" aria-hidden="true"></i>
+        <br>
+        <br>
+        <p> Your help is highly appreciated <3 </p>
+        <br>
+        <!-- On the bottom is PayPal code -->
+        <div id="paypal-button-container"></div>
+
+        <br>
+    </div>
+</div>
+
+<!--PayPal2 -->
+<script src="https://www.paypal.com/sdk/js?client-id=AZy1OLiEc0N_ZlNul6zyUNXtKnLi9QhsHrjtQhC6MyBrbbUiqM_Amonf_ixpnv91_uHLzAD3JiFO4GWS&currency=USD&intent=capture&enable-funding=venmo"
+        data-sdk-integration-source="integrationbuilder"></script>
+<script>
+
+    var total = '{{donate.amount}}';
+
+    const paypalButtonsComponent = paypal.Buttons({
+        // optional styling for buttons
+        // https://developer.paypal.com/docs/checkout/standard/customize/buttons-style-guide/
+        style: {
+            color: "gold",
+            shape: "rect",
+            layout: "vertical"
+        },
+
+        // set up the transaction
+        createOrder: (data, actions) => {
+            // pass in any options from the v2 orders create call:
+            // https://developer.paypal.com/api/orders/v2/#orders-create-request-body
+            const createOrderPayload = {
+                purchase_units: [
+                    {
+                        amount: {
+                            value: total
+                        }
+                    }
+                ]
+            };
+
+            return actions.order.create(createOrderPayload);
+        },
+
+        // finalize the transaction
+        onApprove: (data, actions) => {
+            const captureOrderHandler = (details) => {
+                const payerName = details.payer.name.given_name;
+                console.log('Transaction completed');
+                window.location.replace("{% url 'payment-completed' %}")
+            };
+
+            return actions.order.capture().then(captureOrderHandler);
+        },
+
+        // handle unrecoverable errors
+        onError: (err) => {
+            console.error('An error prevented the buyer from checking out with PayPal');
+            window.location.replace("{% url 'payment-failed' %}")
+        }
+    });
+
+    paypalButtonsComponent
+        .render("#paypal-button-container")
+        .catch((err) => {
+            console.error('PayPal Buttons failed to render');
+        });
+</script>
+
+{% endfor %}
+
+</html>
