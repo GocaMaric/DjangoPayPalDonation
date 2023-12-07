@@ -16,8 +16,12 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('title', models.CharField(max_length=200)),
-                ('description', models.TextField(max_length=300)),
-                ('amount', models.DecimalField(decimal_places=2, max_digits=3)),
+                ('description', models.TextField()),
+                ('amount', models.DecimalField(decimal_places=2, max_digits=10)),  # Adjust max_digits based on your needs
             ],
+            options={
+                'verbose_name': 'Donation',
+                'verbose_name_plural': 'Donations',
+            },
         ),
     ]
